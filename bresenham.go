@@ -5,19 +5,21 @@ import (
 	"image/color"
 	"image/png"
 	"log"
+	"math/rand"
 	"os"
 )
 
 func main() {
 	img := image.NewRGBA(image.Rect(0, 0, 500, 500))
-	drawLine(100, 100, 400, 100, img) //top line
-	drawLine(100, 100, 100, 400, img) //right line
-	drawLine(400, 400, 100, 400, img) //bottom line
-	drawLine(400, 100, 400, 400, img) //left line
-	drawLine(250, 100, 100, 400, img)
-	drawLine(100, 100, 250, 400, img)
-	drawLine(250, 400, 400, 100, img)
-	drawLine(400, 400, 250, 100, img)
+	drawLine(250, 0, 250, 500, img, color.RGBA{255, 255, 255, 255})
+	drawLine(0, 250, 500, 250, img, color.RGBA{255, 255, 255, 255})
+	xb, yb := 0, 0
+	for i := 0; i < 100; i++ {
+		col := color.RGBA{uint8(rand.Intn(256)), uint8(rand.Intn(256)), uint8(rand.Intn(256)), 255}
+		x, y := rand.Intn(500), rand.Intn(500)
+		go drawLine(xb, yb, x, y, img, col)
+		xb, yb = x, y
+	}
 	save(img, "test.png")
 }
 
@@ -34,7 +36,7 @@ func checkErr(err error) {
 	}
 }
 
-func drawLine(x0, y0, x1, y1 int, img *image.RGBA) {
+func drawLine(x0, y0, x1, y1 int, img *image.RGBA, col color.RGBA) {
 	//check if the line is vertical or horizontal
 	if x0-x1 == 0 {
 		drawVLine(x0, y0, y1, img)
@@ -63,16 +65,16 @@ func drawLine(x0, y0, x1, y1 int, img *image.RGBA) {
 		dy := abs(y1 - y0) //dy > 0
 		y := y0
 		e := -dx
-		incPos := dy * 2
-		incNeg := -incPos //avoiding the - operation
+		incE := dy * 2
+		decE := -2 * dx //avoiding the - operation
 		//for each turn in the loop
 
 		for x := x0; x < x1; x++ {
-			img.Set(x, y, color.RGBA{255, 200, 150, 255})
-			e += incPos
+			img.Set(x, y, col)
+			e += incE
 			if e > 0 {
 				y += incY
-				e += incNeg
+				e += decE
 			}
 		}
 	} else {
@@ -81,9 +83,10 @@ func drawLine(x0, y0, x1, y1 int, img *image.RGBA) {
 			y0, y1 = y1, y0
 			x0, x1 = x1, x0
 		}
+		//now y0 < y1
 
-		//check if we should add or remove one
-		//each iteration
+		//check if we should increase or decrease
+		//the x value
 		incX := 1
 		if x0 > x1 {
 			incX = -1
@@ -97,7 +100,7 @@ func drawLine(x0, y0, x1, y1 int, img *image.RGBA) {
 		e := dy
 
 		for y := y0; y < y1; y++ {
-			img.Set(x, y, color.RGBA{200, 200, 255, 255})
+			img.Set(x, y, col)
 			e += incE
 			if e > 0 {
 				e += decE

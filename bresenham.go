@@ -11,10 +11,8 @@ import (
 
 func main() {
 	img := image.NewRGBA(image.Rect(0, 0, 500, 500))
-	drawLine(250, 0, 250, 500, img, color.RGBA{255, 255, 255, 255})
-	drawLine(0, 250, 500, 250, img, color.RGBA{255, 255, 255, 255})
 	xb, yb := 0, 0
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 30; i++ {
 		col := color.RGBA{uint8(rand.Intn(256)), uint8(rand.Intn(256)), uint8(rand.Intn(256)), 255}
 		x, y := rand.Intn(500), rand.Intn(500)
 		go drawLine(xb, yb, x, y, img, col)
@@ -69,7 +67,7 @@ func drawLine(x0, y0, x1, y1 int, img *image.RGBA, col color.RGBA) {
 		decE := -2 * dx //avoiding the - operation
 		//for each turn in the loop
 
-		for x := x0; x < x1; x++ {
+		for x := x0; x <= x1; x++ {
 			img.Set(x, y, col)
 			e += incE
 			if e > 0 {
@@ -97,9 +95,9 @@ func drawLine(x0, y0, x1, y1 int, img *image.RGBA, col color.RGBA) {
 		incE := 2 * dx
 		decE := -2 * dy
 		x := x0
-		e := dy
+		e := -dy
 
-		for y := y0; y < y1; y++ {
+		for y := y0; y <= y1; y++ {
 			img.Set(x, y, col)
 			e += incE
 			if e > 0 {
@@ -129,8 +127,8 @@ func drawVLine(x, y0, y1 int, img *image.RGBA) {
 }
 
 func abs(i int) int {
-	if i >= 0 {
-		return i
+	if i < 0 {
+		return -i
 	}
-	return -i
+	return i
 }
